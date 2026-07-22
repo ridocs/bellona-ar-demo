@@ -76,17 +76,16 @@
   <div style="position:relative; flex:1; display:flex;">
     <!--
       DEGISTIRILECEK ALAN
-      src     = Bellona GLB (Android + Web). METRE cinsinden export sart.
-      ios-src = Bellona USDZ (iOS Quick Look). Ikisi de gerekli.
-      Asagidaki ornek model sadece AR akisinin telefonda calistigini dogrulamak icin.
+      src = Bellona GLB (Android + Web + iOS). METRE cinsinden export sart.
+      iOS icin ayrica USDZ vermek istersen: ios-src="...usdz" ekle.
+      ios-src VERILMEZSE model-viewer USDZ'yi GLB'den otomatik uretir (iOS Quick Look).
     -->
     <model-viewer
       id="mv"
       src="https://modelviewer.dev/shared-assets/models/glTF-Sample-Models/2.0/SheenChair/glTF-Binary/SheenChair.glb"
-      ios-src="https://modelviewer.dev/shared-assets/models/Chair.usdz"
       alt="Bellona ürün 3D modeli"
       ar
-      ar-modes="scene-viewer webxr quick-look"
+      ar-modes="webxr scene-viewer quick-look"
       ar-scale="fixed"
       camera-controls
       touch-action="pan-y"
