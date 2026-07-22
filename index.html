@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bellona · Mobilyayı Odanda Gör</title>
+
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bellona: #c8102e;
+      --ink: #1a1a1a;
+      --muted: #6b7280;
+      --bg: #f4f4f5;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--ink);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    header {
+      padding: 14px 18px; background: #fff;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    header .logo { font-weight: 800; letter-spacing: 1px; color: var(--bellona); font-size: 20px; }
+    header .tag { font-size: 12px; color: var(--muted); }
+
+    model-viewer {
+      width: 100%; flex: 1; min-height: 55vh;
+      background: linear-gradient(180deg,#ffffff 0%,#ececed 100%);
+      --poster-color: #ffffff;
+    }
+
+    .dims {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(0,0,0,.72); color:#fff;
+      padding: 8px 12px; border-radius: 10px;
+      font-size: 13px; line-height: 1.5; backdrop-filter: blur(4px);
+    }
+    .dims b { color: #fff; }
+    .dims span { color:#d1d5db; }
+
+    .panel { background:#fff; padding: 16px 18px 22px; border-top:1px solid #e5e7eb; }
+    .product { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .product h1 { font-size:18px; font-weight:700; }
+    .product .price { font-size:18px; font-weight:800; color:var(--bellona); white-space:nowrap; }
+    .product p { font-size:13px; color:var(--muted); margin-top:4px; }
+
+    .ar-btn {
+      margin-top:16px; width:100%;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      background: var(--bellona); color:#fff; border:none;
+      padding:16px; border-radius:14px; font-size:16px; font-weight:700;
+      cursor:pointer; box-shadow:0 6px 20px rgba(200,16,46,.28);
+    }
+    .ar-btn:active { transform: scale(.98); }
+    .ar-btn svg { width:22px; height:22px; }
+
+    .hint { margin-top:10px; text-align:center; font-size:12px; color:var(--muted); }
+
+    #ar-unsupported {
+      display:none; margin-top:12px; padding:12px; border-radius:10px;
+      background:#fef2f2; color:#991b1b; font-size:13px; text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="logo">BELLONA</span>
+    <span class="tag">Mobilyayı Odanda Gör</span>
+  </header>
+
+  <div style="position:relative; flex:1; display:flex;">
+    <!--
+      DEGISTIRILECEK ALAN
+      src     = Bellona GLB (Android + Web). METRE cinsinden export sart.
+      ios-src = Bellona USDZ (iOS Quick Look). Ikisi de gerekli.
+      Asagidaki ornek model sadece AR akisinin telefonda calistigini dogrulamak icin.
+    -->
+    <model-viewer
+      id="mv"
+      src="https://modelviewer.dev/shared-assets/models/glTF-Sample-Models/2.0/SheenChair/glTF-Binary/SheenChair.glb"
+      ios-src="https://modelviewer.dev/shared-assets/models/Chair.usdz"
+      alt="Bellona ürün 3D modeli"
+      ar
+      ar-modes="scene-viewer webxr quick-look"
+      ar-scale="fixed"
+      camera-controls
+      touch-action="pan-y"
+      shadow-intensity="1.1"
+      shadow-softness="0.9"
+      exposure="1.0"
+      environment-image="neutral"
+      poster-color="#ffffff">
+
+      <div class="dims" slot="hotspot-dim" style="position:absolute; pointer-events:none;">
+        <b>Gerçek Ölçü</b><br>
+        <span>Sana özel model boyutu buraya gelir</span>
+      </div>
+    </model-viewer>
+  </div>
+
+  <div class="panel">
+    <div class="product">
+      <div>
+        <h1 id="p-name">Örnek Koltuk</h1>
+        <p id="p-dim">G 90 cm × D 85 cm × Y 100 cm</p>
+      </div>
+      <div class="price" id="p-price">— TL</div>
+    </div>
+
+    <button class="ar-btn" id="arBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 3 3 7.5v9L12 21l9-4.5v-9L12 3z"/>
+        <path d="M3 7.5 12 12l9-4.5M12 12v9" stroke-opacity=".5"/>
+      </svg>
+      Odanda Gör (AR)
+    </button>
+
+    <div class="hint">Telefonu odana doğrult, zemine yerleştir, sürükleyerek taşı.</div>
+    <div id="ar-unsupported">Bu tarayıcı AR desteklemiyor. Chrome (Android) veya Safari (iPhone) ile aç.</div>
+  </div>
+
+  <script>
+    const mv = document.getElementById('mv');
+    const arBtn = document.getElementById('arBtn');
+    const warn = document.getElementById('ar-unsupported');
+
+    arBtn.addEventListener('click', () => {
+      if (mv.canActivateAR) { mv.activateAR(); }
+      else { warn.style.display = 'block'; }
+    });
+
+    mv.addEventListener('load', () => {
+      if (!mv.canActivateAR) warn.style.display = 'block';
+    });
+
+    mv.addEventListener('load', () => {
+      const dim = mv.getDimensions();
+      if (dim) {
+        const cm = v => Math.round(v * 100);
+        document.getElementById('p-dim').textContent =
+          `G ${cm(dim.x)} cm × D ${cm(dim.z)} cm × Y ${cm(dim.y)} cm`;
+        document.querySelector('[slot="hotspot-dim"] span').textContent =
+          `${cm(dim.x)} × ${cm(dim.z)} × ${cm(dim.y)} cm`;
+      }
+    });
+  </script>
+</body>
+</html>
