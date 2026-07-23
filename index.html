@@ -13,15 +13,16 @@ header{background:#fff;padding:14px 18px;display:flex;align-items:center;gap:10p
 header .logo{font-weight:800;letter-spacing:1px;color:var(--bellona);font-size:20px}
 header .sub{font-size:13px;color:#71717a}
 .wrap{flex:1;display:flex;flex-direction:column;padding:16px;gap:14px;max-width:720px;margin:0 auto;width:100%}
-model-viewer{width:100%;height:60vh;min-height:360px;background:linear-gradient(#fafafa,#ececee);border-radius:16px;--poster-color:#ececee}
+model-viewer{width:100%;height:58vh;min-height:340px;background:linear-gradient(#fafafa,#ececee);border-radius:16px}
 .card{background:#fff;border-radius:16px;padding:16px 18px;border:1px solid #e4e4e7}
 .title{font-size:18px;font-weight:700;margin-bottom:4px}
 .desc{font-size:14px;color:#71717a}
 .dims{font-size:14px;color:#52525b;margin-top:8px}
 .dims b{color:#18181b}
 .arbtn{background:var(--bellona);color:#fff;border:none;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 4px 14px rgba(200,16,46,.3)}
-.hint{font-size:12px;color:#a1a1aa;text-align:center;margin-top:4px}
-.err{display:none;background:#fef2f2;color:#b91c1c;padding:10px;border-radius:10px;font-size:13px;margin-top:8px}
+.status{font-size:12px;color:#71717a;text-align:center;margin-top:6px;font-family:ui-monospace,monospace}
+.status.bad{color:#b91c1c}
+.hint{font-size:12px;color:#a1a1aa;text-align:center}
 </style>
 </head>
 <body>
@@ -31,7 +32,7 @@ model-viewer{width:100%;height:60vh;min-height:360px;background:linear-gradient(
 </header>
 <div class="wrap">
   <model-viewer id="mv"
-    src="https://litter.catbox.moe/fdggzi.glb"
+    src="https://litter.catbox.moe/997jv6.glb"
     ios-src="https://litter.catbox.moe/urd6z8.usdz"
     alt="Bellona Bouclé Berjer"
     camera-controls auto-rotate shadow-intensity="1"
@@ -43,23 +44,29 @@ model-viewer{width:100%;height:60vh;min-height:360px;background:linear-gradient(
     <div class="title">Bouclé Berjer</div>
     <div class="desc">Gerçek boyutta odanda dene, satın almadan önce nasıl durduğunu gör.</div>
     <div class="dims" id="dims">Ölçüler yükleniyor…</div>
-    <div class="err" id="err"></div>
+    <div class="status" id="st">durum: başlatılıyor…</div>
   </div>
   <div class="hint">iPhone/iPad → Safari · Android → Chrome ile açın</div>
 </div>
 <script type="module">
 const mv=document.getElementById('mv');
 const dims=document.getElementById('dims');
-const err=document.getElementById('err');
+const st=document.getElementById('st');
+function set(t,bad){ st.textContent='durum: '+t; st.className='status'+(bad?' bad':''); }
+if(!customElements.get('model-viewer')){
+  customElements.whenDefined('model-viewer').then(()=>set('bileşen hazır, model indiriliyor…'));
+  setTimeout(()=>{ if(!customElements.get('model-viewer')) set('model-viewer scriptı yüklenemedi (CDN engelli?)',true); },6000);
+} else set('bileşen hazır, model indiriliyor…');
+mv.addEventListener('progress',(e)=>{ const p=Math.round(e.detail.totalProgress*100); if(p<100) set('model indiriliyor %'+p); });
 mv.addEventListener('load', async ()=>{
+  set('model yüklendi ✓');
   try{
     const d=await mv.getDimensions();
-    const w=Math.round(d.x*100),h=Math.round(d.y*100),dp=Math.round(d.z*100);
-    dims.innerHTML='Genişlik <b>'+w+' cm</b> · Yükseklik <b>'+h+' cm</b> · Derinlik <b>'+dp+' cm</b>';
-  }catch(e){ dims.textContent=''; }
+    dims.innerHTML='Genişlik <b>'+Math.round(d.x*100)+' cm</b> · Yükseklik <b>'+Math.round(d.y*100)+' cm</b> · Derinlik <b>'+Math.round(d.z*100)+' cm</b>';
+  }catch(e){ dims.textContent='ölçü okunamadı'; }
 });
-mv.addEventListener('error',(e)=>{ err.style.display='block'; err.textContent='Model yüklenemedi.'; });
-mv.addEventListener('ar-status',(e)=>{ if(e.detail.status==='failed'){ err.style.display='block'; err.textContent="AR başlatılamadı. iPhone'da Safari, Android'de Chrome deneyin."; } });
+mv.addEventListener('error',(e)=>{ set('model yüklenemedi — '+(e.detail&&e.detail.type?e.detail.type:'bilinmeyen hata'),true); });
+mv.addEventListener('ar-status',(e)=>{ if(e.detail.status==='failed') set('AR başlatılamadı',true); });
 </script>
 </body>
 </html>
