@@ -32,8 +32,8 @@ model-viewer{width:100%;height:58vh;min-height:340px;background:linear-gradient(
 </header>
 <div class="wrap">
   <model-viewer id="mv"
-    src="models/armchair.glb"
-    ios-src="models/armchair.usdz"
+    src="armchair.glb"
+    ios-src="armchair.usdz"
     alt="Bellona Bouclé Berjer"
     camera-controls auto-rotate shadow-intensity="1"
     ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
@@ -52,23 +52,17 @@ model-viewer{width:100%;height:58vh;min-height:340px;background:linear-gradient(
 const mv=document.getElementById('mv');
 const dims=document.getElementById('dims');
 const st=document.getElementById('st');
-const FALLBACK='https://litter.catbox.moe/997jv6.glb';
-const FALLBACK_IOS='https://litter.catbox.moe/urd6z8.usdz';
-let usedFallback=false;
 function set(t,bad){ st.textContent='durum: '+t; st.className='status'+(bad?' bad':''); }
 set('model indiriliyor…');
-mv.addEventListener('progress',(e)=>{ const p=Math.round(e.detail.totalProgress*100); if(p<100) set('indiriliyor %'+p+(usedFallback?' (yedek)':' (kendi sunucu)')); });
+mv.addEventListener('progress',(e)=>{ const p=Math.round(e.detail.totalProgress*100); if(p<100) set('indiriliyor %'+p); });
 mv.addEventListener('load', async ()=>{
-  set('model yüklendi ✓'+(usedFallback?' (yedek kaynak)':''));
+  set('model yüklendi ✓');
   try{
     const d=await mv.getDimensions();
     dims.innerHTML='Genişlik <b>'+Math.round(d.x*100)+' cm</b> · Yükseklik <b>'+Math.round(d.y*100)+' cm</b> · Derinlik <b>'+Math.round(d.z*100)+' cm</b>';
   }catch(e){ dims.textContent='ölçü okunamadı'; }
 });
-mv.addEventListener('error',()=>{
-  if(!usedFallback){ usedFallback=true; set('kendi sunucuda model yok, yedeğe geçiliyor…'); mv.src=FALLBACK; mv.iosSrc=FALLBACK_IOS; }
-  else set('model yüklenemedi (her iki kaynak da başarısız)',true);
-});
+mv.addEventListener('error',(e)=>{ set('model yüklenemedi — '+((e.detail&&e.detail.type)||'bilinmeyen'),true); });
 mv.addEventListener('ar-status',(e)=>{ if(e.detail.status==='failed') set('AR başlatılamadı',true); });
 </script>
 </body>
